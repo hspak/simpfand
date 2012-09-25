@@ -28,13 +28,15 @@
 #define INC_HIGH_TEMP 	65
 #define INC_MAX_TEMP  	82
 
+#define INC_DEC_THRESH  2
+
 #define DEC_LOW_TEMP  	50
 #define DEC_HIGH_TEMP 	60
 #define DEC_MAX_TEMP  	77
 
 #define POLL_INTERVAL 	10
 
-/* RPM's
+/* RPM's for ThinkPad T420
  *  Level 1: 2000
  *  Level 2: 3200
  *  Level 3: 3400
@@ -77,7 +79,7 @@ int main(int argc, char const *argv[])
 
 		temp_diff = new_temp - old_temp;
 
-		if (temp_diff < 2)
+		if (temp_diff < INC_DEC_THRESH)
 			if (new_temp > DEC_MAX_TEMP)
 				sprintf(cmd, "echo level %d > /proc/acpi/ibm/fan", 7);
 			else if (new_temp > DEC_HIGH_TEMP)
