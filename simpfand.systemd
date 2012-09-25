@@ -5,7 +5,6 @@ Before=shutdown.target
 
 [Service] 
 Type=oneshot
-RemainAfterExit=yes
 ExecStart=/usr/bin/simpfand
 
 [Install]

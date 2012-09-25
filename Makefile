@@ -6,9 +6,6 @@ LDLIBS = -lm
 SRC = simpfand.c
 OBJ = $(SRC:.c=.o)
 
-simpfand: simpfand.c
-	$(CC) $(CFLAGS) $(LDLIBS) simpfand.c -o simpfand
-
 strip: simpfand
 	strip simpfand
 
