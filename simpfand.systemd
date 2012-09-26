@@ -1,10 +1,8 @@
 [Unit]
 Description=Starts the simpfand daemon.
 After=acpi.service
-Before=shutdown.target
 
 [Service] 
-Type=oneshot
 ExecStart=/usr/bin/simpfand
 
 [Install]
