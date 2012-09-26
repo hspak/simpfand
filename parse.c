@@ -43,7 +43,6 @@ int config_path_exists(char *path, int pathlen)
 	xdg_path = "/etc/conf.d";
 	if (xdg_path != NULL) {
 		snprintf(path, pathlen, "%s/simpfand", xdg_path);
-		printf("%s\n", path);
 		return 0;
 	} else {
 		fprintf(stderr, "simpfand: could not find /etc/conf.d\n");
@@ -129,6 +128,5 @@ int parse_config(struct config *cfg)
 				cfg->dec_max_lvl = read_val;
 			}
 	}
-
 	return 0;
 }

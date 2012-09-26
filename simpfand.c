@@ -57,8 +57,6 @@ void get_level(char* cmd, unsigned short old_temp, unsigned short new_temp,
 			sprintf(cmd, "echo level %d > /proc/acpi/ibm/fan", cfg->inc_high_lvl);
 		else
 			sprintf(cmd, "echo level %d > /proc/acpi/ibm/fan", cfg->inc_max_lvl);
-
-	printf("level = %d\n", cfg->base_lvl);
 }
 
 void set_defaults(struct config *cfg)
@@ -105,7 +103,6 @@ int main(int argc, char const *argv[])
 		old_temp = new_temp;
 		new_temp = get_temp();
 		get_level(cmd, old_temp, new_temp, &cfg);
-		printf("temp = %u\t%s\n", new_temp, cmd);
 		system(cmd);
 	 	sleep(cfg.poll_int);
 	 }
