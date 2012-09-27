@@ -57,6 +57,8 @@ int parse_config(struct config *cfg)
 	char conf_path[PATH_MAX];
 	FILE *fp;
 
+	/* add version and help commands */
+
 	if (config_path_exists(conf_path, sizeof(conf_path)) != 0) {
 		return 0; /* can't find path */
 	}
