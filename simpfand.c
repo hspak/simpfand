@@ -1,7 +1,8 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/file.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include "parse.h"
 
 #define CMD_MAX	35
@@ -88,15 +89,12 @@ int main(int argc, char const *argv[])
 	unsigned short old_temp, new_temp;
 	char cmd[CMD_MAX];
 	struct config cfg; 
-	int pid_file = open("var/run/simpfand.pid", O_CREAT | O_RDWR, 0666);
-	int rc = flock(pid_file, LOCK_EX | LOCK_NB);
+	int pid_file;
 
-	if (rc) {
-		if (EWOULDBLOCK == errno) {
+	if ((pid_file = open("var/run/simpfand.pid", O_CREAT | O_EXCL)) == -1) {
 			printf("simpfand: another instance running!"
 			       "Do not manually run\n");
 			return 1;
-		}
 	}
 
 	set_defaults(&cfg);
