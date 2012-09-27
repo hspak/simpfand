@@ -108,5 +108,6 @@ int main(int argc, char const *argv[])
 	 	sleep(cfg.poll_int);
 	 }
 
+	close(pid_file);
 	return 0;
 }
