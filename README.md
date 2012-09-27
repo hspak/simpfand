@@ -10,6 +10,7 @@ https://aur.archlinux.org/packages.php?ID=63124
 Also installs a systemd service file.
 
 Otherwise:
+
 	make install
 
 ##Usage
