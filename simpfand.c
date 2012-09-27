@@ -1,6 +1,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/file.h>
 #include "parse.h"
 
 #define CMD_MAX	35
