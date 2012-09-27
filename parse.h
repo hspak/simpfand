@@ -16,17 +16,19 @@
 #define BASE_LEVEL	1
 #define INC_LOW_LEVEL	2
 #define INC_HIGH_LEVEL	4
-#define INC_MAX_LEVEL	7
+#define INC_MAX_LEVEL	6
 
 #define DEC_LOW_LEVEL	4
 #define DEC_HIGH_LEVEL	5
-#define DEC_MAX_LEVEL	7
+#define DEC_MAX_LEVEL	6
 
-#define DEC_THRESH  	1
+#define DEC_THRESH  	0
 
 #define DEC_LOW_TEMP  	50
 #define DEC_HIGH_TEMP 	60
 #define DEC_MAX_TEMP  	77
+
+#define MAX_FAN_LVL	7
 
 #define POLL_INTERVAL 	10
 #define BUFF_MAX	128

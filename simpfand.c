@@ -7,15 +7,7 @@
 
 #define CMD_MAX	35
 
-/* RPM's for ThinkPad T420
- *  Level 1: 2000
- *  Level 2: 3200
- *  Level 3: 3400
- *  Level 4: 3600
- *  Level 5: 3900
- *  Level 6: 4500
- *  Level 7: 5800
- */
+
 
 /* Returns average CPU temp in degrees (ceiling) */
 unsigned short get_temp()
@@ -92,8 +84,8 @@ int main(int argc, char const *argv[])
 	int pid_file;
 
 	if ((pid_file = open("var/run/simpfand.pid", O_CREAT | O_EXCL)) == -1) {
-			printf("simpfand: another instance running!"
-			       "Do not manually run\n");
+			printf("simpfand: another instance running! "
+			       "Do not manually run.\n");
 			return 1;
 	}
 
