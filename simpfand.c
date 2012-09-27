@@ -7,8 +7,6 @@
 
 #define CMD_MAX	35
 
-
-
 /* Returns average CPU temp in degrees (ceiling) */
 unsigned short get_temp()
 {
