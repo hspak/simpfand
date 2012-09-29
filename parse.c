@@ -14,14 +14,12 @@ size_t strtrim(char *str)
 	if(!str || *str == '\0') {
 		return 0;
 	}
-
 	while(isspace((unsigned char)*left)) {
 		left++;
 	}
 	if(left != str) {
 		memmove(str, left, (strlen(left) + 1));
 	}
-
 	if(*str == '\0') {
 		return 0;
 	}
@@ -39,7 +37,6 @@ int config_path_exists(char *path, int pathlen)
 {
 	char *xdg_path;
 
-	// xdg_path = getenv("XDG_CONFIG_HOME");
 	xdg_path = "/etc/conf.d";
 	if (xdg_path != NULL) {
 		snprintf(path, pathlen, "%s/simpfand", xdg_path);
@@ -56,8 +53,6 @@ int parse_config(struct config *cfg)
 	char line[BUFF_MAX];
 	char conf_path[PATH_MAX];
 	FILE *fp;
-
-	/* add version and help commands */
 
 	if (config_path_exists(conf_path, sizeof(conf_path)) != 0) {
 		return 0; /* can't find path */
@@ -96,7 +91,7 @@ int parse_config(struct config *cfg)
 		errno = 0;
 		read_val = (unsigned short)strtol(val, &cpy, 10);
 		if (errno != 0 || cpy == val || *cpy != 0)
-			fprintf(stderr, "simpfand: invalid entry in config");
+			fprintf(stderr, "simpfand: invalid entry in config for %s: \"%s\"", key, cpy);
 		else
 			if (STREQ(key, "POLLING")) {
 				cfg->poll_int = read_val;

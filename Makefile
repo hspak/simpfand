@@ -1,9 +1,12 @@
+VERSION = 1.2
+
 CC = gcc
+CPPFLAGS = -DSIMPFAND_VERSION=\"$(VERSION)\"
 CFLAGS = -std=c99 -Wall -pedantic -Os
 
 LDLIBS = -lm
 
-SRC = simpfand.c parse.c
+SRC = simpfand.c parse.c options.c
 OBJ = $(SRC:.c=.o)
 	
 simpfand: $(OBJ)

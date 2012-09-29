@@ -3,7 +3,7 @@ Description=Starts the simpfand daemon.
 After=acpi.service
 
 [Service] 
-ExecStart=/usr/bin/simpfand
+ExecStart=/usr/bin/simpfand --start
 
 [Install]
 WantedBy=multi-user.target

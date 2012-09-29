@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include "parse.h"
+#include "options.h"
 
 #define CMD_MAX	35
 
@@ -74,38 +75,71 @@ void set_defaults(struct config *cfg)
 	cfg->base_lvl      = BASE_LEVEL;
 }
 
-int main(int argc, char const *argv[])
+void print_version(void)
+{
+	printf("simpfand: %s\n", SIMPFAND_VERSION);
+}
+
+void print_help(void)
+{
+	print_version();
+	printf("Usage: simpfand <action>\n\n"
+
+	       " Actions:\n"
+	       "  -v, --version		display version\n"
+	       "  -h, --help		display help\n"
+	       "  -s, --start 		starts daemon\n\n"
+
+	       " NOTE: running --start manually is not recommended!\n");
+}
+
+int main(int argc, char *argv[])
 {
 	unsigned short old_temp, new_temp;
 	char cmd[CMD_MAX];
 	struct config cfg; 
-	int pid_file;
+	int action;
 
-	if ((pid_file = open("var/run/simpfand.pid", O_CREAT | O_EXCL)) == -1) {
-			printf("simpfand: another instance running! "
-			       "Do not manually run.\n");
-			return 1;
-	}
+	if (argc < 2) {
+		fprintf(stderr, "error: requires argument (-h for help)\n");
+		return 1;
+	} 
 
-	set_defaults(&cfg);
-	parse_config(&cfg);
+	if ((action = read_command(argc, argv)) != 0) {
+		if (action == OPT_HELP) {
+			print_help();
+		} else if (action == OPT_VERSION) {
+			print_version();
+		} else if (action == OPT_START) {
+			if (geteuid() != 0) {
+				/* try to preven users from directly starting program*/
+				fprintf(stderr, "permission denied: simpfand\n");
+				return 1;
+			}
 
-	new_temp = get_temp();
-	if (new_temp == 0) {
-		fprintf(stderr, "simpfand: cannot properly read temperature!"
-		        	"Fan set to auto. Exiting.\n");
-		system("echo level auto > /proc/acpi/ibm/fan");
+			set_defaults(&cfg);
+			parse_config(&cfg);
+
+			new_temp = get_temp();
+			if (new_temp == 0) {
+				fprintf(stderr, "error: cannot properly read temperature!"
+				        	"Fan set to auto. Exiting.\n");
+				system("echo level auto > /proc/acpi/ibm/fan");
+				return 1;
+			}
+
+			while (1) {
+				old_temp = new_temp;
+				new_temp = get_temp();
+				get_level(cmd, old_temp, new_temp, &cfg);
+				system(cmd);
+			 	sleep(cfg.poll_int);
+			 }
+		}
+	} else {
+		fprintf(stderr, "error: could not properly read command\n");
 		return 1;
 	}
 
-	while (1) {
-		old_temp = new_temp;
-		new_temp = get_temp();
-		get_level(cmd, old_temp, new_temp, &cfg);
-		system(cmd);
-	 	sleep(cfg.poll_int);
-	 }
-
-	close(pid_file);
 	return 0;
 }
