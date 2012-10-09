@@ -86,7 +86,7 @@ void print_help(void)
 	       " Actions:\n"
 	       "  -v, --version		display version\n"
 	       "  -h, --help		display help\n"
-	       "  -s, --start 		starts daemon\n\n"
+	       "  -s, --start 		starts daemon\n"
 	       "  -t, --stop 		stops daemon\n\n"
 
 	       " NOTE: running --start and --stop manually is not recommended!\n");
