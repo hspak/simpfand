@@ -1,8 +1,8 @@
-VERSION = 1.2
+VERSION = $(shell git describe)
 
 CC = gcc
 CPPFLAGS = -DSIMPFAND_VERSION=\"$(VERSION)\"
-CFLAGS = -std=c99 -Wall -pedantic -Os
+CFLAGS = -std=c99 -Wall -pedantic -O2
 
 LDLIBS = -lm
 

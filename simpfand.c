@@ -1,8 +1,6 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include "parse.h"
 #include "options.h"
 
@@ -89,8 +87,9 @@ void print_help(void)
 	       "  -v, --version		display version\n"
 	       "  -h, --help		display help\n"
 	       "  -s, --start 		starts daemon\n\n"
+	       "  -t, --stop 		stops daemon\n\n"
 
-	       " NOTE: running --start manually is not recommended!\n");
+	       " NOTE: running --start and --stop manually is not recommended!\n");
 }
 
 int main(int argc, char *argv[])
@@ -99,6 +98,19 @@ int main(int argc, char *argv[])
 	char cmd[CMD_MAX];
 	struct config cfg; 
 	int action;
+	FILE *fp;
+
+	/*
+         * Check critical temp?
+	 * Allow manual override?
+	 */
+
+	fp = fopen("/proc/acpi/ibm/fan", "r");
+	if (!fp) {
+		fprintf(stderr, "thinkpad_acpi fan_control option is disabled! Exiting\n");
+		return 1;
+	}
+	fclose(fp);
 
 	if (argc < 2) {
 		fprintf(stderr, "error: requires argument (-h for help)\n");
@@ -110,6 +122,9 @@ int main(int argc, char *argv[])
 			print_help();
 		} else if (action == OPT_VERSION) {
 			print_version();
+		} else if (action == OPT_STOP) {
+			printf("Stopping simpfand. Fan level set to auto.\n");
+			system("echo level auto > /proc/acpi/ibm/fan");
 		} else if (action == OPT_START) {
 			if (geteuid() != 0) {
 				/* try to preven users from directly starting program*/
@@ -136,9 +151,6 @@ int main(int argc, char *argv[])
 			 	sleep(cfg.poll_int);
 			 }
 		}
-	} else {
-		fprintf(stderr, "error: could not properly read command\n");
-		return 1;
 	}
 
 	return 0;

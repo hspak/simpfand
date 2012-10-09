@@ -10,10 +10,11 @@ int read_command(int argc, char *argv[])
 		{"help", no_argument,	    0, 'h'},
 		{"version", no_argument,    0, 'v'},
 		{"start", no_argument,      0, 's'},
+		{"stop", no_argument,       0, 't'},
 		{0, 0, 0, 0}
 	};
 
-	while ((opt = getopt_long(argc, argv, "shv", opts, &option_index)) != -1)
+	while ((opt = getopt_long(argc, argv, "shvt", opts, &option_index)) != -1)
 	{
 		switch (opt)
 		{
@@ -23,6 +24,8 @@ int read_command(int argc, char *argv[])
 				return OPT_VERSION;
 			case 's':
 				return OPT_START;
+			case 't':
+				return OPT_STOP;
 			default:
 				return 0;
 		}

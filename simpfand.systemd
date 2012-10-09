@@ -4,6 +4,7 @@ After=acpi.service
 
 [Service] 
 ExecStart=/usr/bin/simpfand --start
+ExecStop=/usr/bin/simpfand --stop
 
 [Install]
 WantedBy=multi-user.target
