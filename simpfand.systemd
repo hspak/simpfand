@@ -1,8 +1,8 @@
 [Unit]
-Description=Starts the simpfand daemon.
+Description=Simple fan control daemon for ThinkPads.
 After=acpi.service
 
-[Service] 
+[Service]
 ExecStart=/usr/bin/simpfand --start
 ExecStop=/usr/bin/simpfand --stop
 

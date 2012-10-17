@@ -1,5 +1,5 @@
-#ifndef parse_h
-#define parse_h
+#ifndef PARSE_H
+#define PARSE_H
 
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -13,7 +13,7 @@
 #define INC_HIGH_TEMP 	65
 #define INC_MAX_TEMP  	82
 
-#define BASE_LEVEL	1
+#define BASE_LEVEL		1
 #define INC_LOW_LEVEL	2
 #define INC_HIGH_LEVEL	4
 #define INC_MAX_LEVEL	6
@@ -28,13 +28,13 @@
 #define DEC_HIGH_TEMP 	60
 #define DEC_MAX_TEMP  	77
 
-#define MAX_FAN_LVL	7
+#define MAX_FAN_LVL		7
 
 #define POLL_INTERVAL 	10
-#define BUFF_MAX	128
-#define PATH_MAX	128
+#define BUFF_MAX		128
+#define PATH_MAX		128
 
-#define STREQ(x,y)	(strcmp((x),(y)) == 0)
+#define STR_STARTS_WITH(x,y)	(strncmp((x),(y), strlen(y)) == 0)
 
 struct config {
  	unsigned short inc_low_temp;
@@ -56,6 +56,7 @@ struct config {
  	unsigned short base_lvl;
  	unsigned short poll_int;
  	unsigned short dec_thres;
+ 	unsigned short max_temp;
  };
 
 size_t strtrim(char *str);

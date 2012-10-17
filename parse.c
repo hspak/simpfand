@@ -48,7 +48,7 @@ int config_path_exists(char *path, int pathlen)
 	return 1;
 }
 
-int parse_config(struct config *cfg) 
+int parse_config(struct config *cfg)
 {
 	char line[BUFF_MAX];
 	char conf_path[PATH_MAX];
@@ -61,11 +61,12 @@ int parse_config(struct config *cfg)
 	fp = fopen(conf_path, "r");
 	if (!fp) {
 		return 0; /* no config file */
-	}		
+	}
 
 	while (fgets(line, PATH_MAX, fp)) {
-		char *key, *val;
+		char *key, *val, *key_cmp = NULL;
 		size_t linelen;
+		int key_len;
 
 		linelen = strtrim(line);
 		if (linelen == 0 || line[0] == '#') {
@@ -79,8 +80,9 @@ int parse_config(struct config *cfg)
 
 		key = val = line;
 		strsep(&val, "=");
-		strtrim(key);
 		strtrim(val);
+		strtrim(key);
+		key_len = strlen(key);
 
 		if (val && !*val) {
 			val = NULL;
@@ -93,35 +95,47 @@ int parse_config(struct config *cfg)
 		if (errno != 0 || cpy == val || *cpy != 0)
 			fprintf(stderr, "simpfand: invalid entry in config for %s: \"%s\"", key, cpy);
 		else
-			if (STREQ(key, "POLLING")) {
+			key_cmp = &key[key_len-4];
+
+			if (STR_STARTS_WITH(key_cmp, "_LVL") && read_val > 7) {
+				fprintf(stderr, "warning: \"%s\" set greater than max level (7), "
+				        "using default value\n", key);
+				continue;
+			} else if (STR_STARTS_WITH(key_cmp, "TEMP") && read_val > cfg->max_temp) {
+				fprintf(stderr, "warning: \"%s\" set greater than max temp (%d C), "
+				        "using default value\n", key, cfg->max_temp);
+				continue;
+			}
+
+			if (STR_STARTS_WITH(key, "POLLING")) {
 				cfg->poll_int = read_val;
-			} else if (STREQ(key, "INC_LOW_TEMP")) {
+			} else if (STR_STARTS_WITH(key, "INC_LOW_TEMP")) {
 				cfg->inc_low_temp = read_val;
-			} else if (STREQ(key, "INC_HIGH_TEMP")) {
+			} else if (STR_STARTS_WITH(key, "INC_HIGH_TEMP")) {
 				cfg->inc_high_temp = read_val;
-			} else if (STREQ(key, "INC_MAX_TEMP")) {
+			} else if (STR_STARTS_WITH(key, "INC_MAX_TEMP")) {
 				cfg->inc_max_temp = read_val;
-			} else if (STREQ(key, "DEC_LOW_TEMP")) {
+			} else if (STR_STARTS_WITH(key, "DEC_LOW_TEMP")) {
 				cfg->dec_low_temp = read_val;
-			} else if (STREQ(key, "DEC_HIGH_TEMP")) {
+			} else if (STR_STARTS_WITH(key, "DEC_HIGH_TEMP")) {
 				cfg->dec_high_temp = read_val;
-			} else if (STREQ(key, "DEC_MAX_TEMP")) {
+			} else if (STR_STARTS_WITH(key, "DEC_MAX_TEMP")) {
 				cfg->dec_max_temp = read_val;
-			} else if (STREQ(key, "DEC_THRESH")) {
+			} else if (STR_STARTS_WITH(key, "DEC_THRESH")) {
 				cfg->dec_thres = read_val;
-			} else if (STREQ(key, "BASE_LVL")) {
+			} else if (STR_STARTS_WITH(key, "BASE_LVL")) {
 				cfg->base_lvl = read_val;
-			} else if (STREQ(key, "INC_LOW_LVL")) {
+			} else if (STR_STARTS_WITH(key, "INC_LOW_LVL")) {
 				cfg->inc_low_lvl = read_val;
-			} else if (STREQ(key, "INC_HIGH_LVL")) {
+			} else if (STR_STARTS_WITH(key, "INC_HIGH_LVL")) {
 				cfg->inc_high_lvl = read_val;
-			} else if (STREQ(key, "INC_MAX_LVL")) {
+			} else if (STR_STARTS_WITH(key, "INC_MAX_LVL")) {
 				cfg->inc_max_lvl = read_val;
-			} else if (STREQ(key, "DEC_LOW_LVL")) {
+			} else if (STR_STARTS_WITH(key, "DEC_LOW_LVL")) {
 				cfg->dec_low_lvl = read_val;
-			} else if (STREQ(key, "DEC_HIGH_LVL")) {
+			} else if (STR_STARTS_WITH(key, "DEC_HIGH_LVL")) {
 				cfg->dec_high_lvl = read_val;
-			} else if (STREQ(key, "DEC_MAX_LVL")) {
+			} else if (STR_STARTS_WITH(key, "DEC_MAX_LVL")) {
 				cfg->dec_max_lvl = read_val;
 			}
 	}

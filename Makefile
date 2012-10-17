@@ -1,4 +1,4 @@
-VERSION = $(shell git describe)
+VERSION = 1.4
 
 CC = gcc
 CPPFLAGS = -DSIMPFAND_VERSION=\"$(VERSION)\"
