@@ -14,8 +14,8 @@ int read_command(int argc, char *argv[])
 		{0, 0, 0, 0}
 	};
 
-	while ((opt = getopt_long(argc, argv, "shvt", opts, &option_index)) != -1)
-	{
+	while ((opt = getopt_long(argc, argv, "shvt", opts, &option_index)) != -1) 
+        {
 		switch (opt)
 		{
 			case 'h':
@@ -32,3 +32,4 @@ int read_command(int argc, char *argv[])
 	}
 	return 0;
 }
+

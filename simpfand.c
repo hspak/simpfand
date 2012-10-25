@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
 			new_temp = get_temp();
 			if (new_temp == 0 || cfg.max_temp == 0) {
 				fprintf(stderr, "error: cannot properly read temperature! "
-				        	"Fan set to auto. Exiting.\n");
+                                                "Fan set to auto. Exiting.\n");
 				system("echo level auto > /proc/acpi/ibm/fan");
 				return 1;
 			}

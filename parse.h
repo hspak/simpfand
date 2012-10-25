@@ -1,14 +1,6 @@
 #ifndef PARSE_H
 #define PARSE_H
 
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <string.h>
-#include <errno.h>
-
 #define INC_LOW_TEMP  	55
 #define INC_HIGH_TEMP 	65
 #define INC_MAX_TEMP  	82
