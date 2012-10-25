@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <ctype.h>
 #include <string.h>
 #include <errno.h>
@@ -35,17 +37,18 @@ size_t strtrim(char *str)
 
 int config_path_exists(char *path, int pathlen)
 {
-	char *xdg_path;
+	char *cfg_path;
+        struct stat st;
 
-	xdg_path = "/etc/conf.d";
-	if (xdg_path != NULL) {
-		snprintf(path, pathlen, "%s/simpfand", xdg_path);
-		return 0;
+	cfg_path = "/etc/conf.d";
+        if (stat("/etc/conf.d", &st) == 0) {
+		snprintf(path, pathlen, "%s/simpfand", cfg_path);
+		return 1;
 	} else {
 		fprintf(stderr, "simpfand: could not find /etc/conf.d\n");
 	}
 
-	return 1;
+	return 0;
 }
 
 int parse_config(struct config *cfg)
@@ -54,13 +57,17 @@ int parse_config(struct config *cfg)
 	char conf_path[PATH_MAX];
 	FILE *fp;
 
-	if (config_path_exists(conf_path, sizeof(conf_path)) != 0) {
-		return 0; /* can't find path */
+	if (!config_path_exists(conf_path, sizeof(conf_path))) {
+                fprintf(stderr, "warning: could not find /etc/conf.d, "
+                                "using defaults\n");
+		return 0;
 	}
 
 	fp = fopen(conf_path, "r");
 	if (!fp) {
-		return 0; /* no config file */
+                fprintf(stderr, "warning: no config file found "
+                                "using defaults\n");
+		return 0;
 	}
 
 	while (fgets(line, PATH_MAX, fp)) {
