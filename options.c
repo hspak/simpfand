@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <getopt.h>
 #include "options.h"
 
@@ -33,3 +34,16 @@ int read_command(int argc, char *argv[])
 	return 0;
 }
 
+int module_enabled(char *fan_path, char *mode)
+{
+	int enabled = fopen("/proc/acpi/ibm/fan", "r") != NULL;
+        if (!enabled) fprintf(stderr, "thinkpad_acpi fan_control option is disabled! Exiting\n");
+        return enabled;
+}
+
+int arg_count(int argc)
+{
+        int enough = argc > 1;
+        if (!enough) fprintf(stderr, "error: requires argument (-h for help)\n");
+        return enough;
+}

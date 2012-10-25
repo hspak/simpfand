@@ -1,6 +1,8 @@
+#define _GNU_SOURCE
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "parse.h"
 #include "options.h"
 
@@ -116,17 +118,9 @@ int main(int argc, char *argv[])
 	int action;
 	FILE *fp;
 
-	fp = fopen("/proc/acpi/ibm/fan", "r");
-	if (!fp) {
-		fprintf(stderr, "thinkpad_acpi fan_control option is disabled! Exiting\n");
-		return 1;
-	}
-	fclose(fp);
+        if (!module_enabled("/proc/acpi/ibm/fan", "r") || !arg_count(argc))
+                return 1;
 
-	if (argc < 2) {
-		fprintf(stderr, "error: requires argument (-h for help)\n");
-		return 1;
-	}
 
 	if ((action = read_command(argc, argv)) != 0) {
 		if (action == OPT_HELP) {
@@ -137,12 +131,6 @@ int main(int argc, char *argv[])
 			printf("Stopping simpfand. Fan level set to auto.\n");
 			system("echo level auto > /proc/acpi/ibm/fan");
 		} else if (action == OPT_START) {
-			if (geteuid() != 0) {
-				/* try to preven users from directly starting program*/
-				fprintf(stderr, "permission denied: simpfand\n");
-				return 1;
-			}
-
 			cfg.max_temp = get_max_temp();
 			set_defaults(&cfg);
 			parse_config(&cfg);
@@ -164,6 +152,5 @@ int main(int argc, char *argv[])
 			 }
 		}
 	}
-
 	return 0;
 }

@@ -7,5 +7,7 @@
 #define OPT_STOP 	4
 
 int read_command(int argc, char *argv[]);
+int module_enabled(char *path, char *mode);
+int arg_count(int argc);
 
 #endif
