@@ -1,6 +1,5 @@
 #define _GNU_SOURCE
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -99,18 +98,18 @@ int parse_config(struct config *cfg)
 		char *cpy = val;
 		errno = 0;
 		read_val = (unsigned short)strtol(val, &cpy, 10);
-		if (errno != 0 || cpy == val || *cpy != 0)
+		if (errno != 0 || cpy == val || *cpy != 0) {
 			fprintf(stderr, "simpfand: invalid entry in config for %s: \"%s\"", key, cpy);
-		else
+		} else {
 			key_cmp = &key[key_len-4];
 
 			if (STR_STARTS_WITH(key_cmp, "_LVL") && read_val > 7) {
 				fprintf(stderr, "warning: \"%s\" set greater than max level (7), "
-				        "using default value\n", key);
+					"using default value\n", key);
 				continue;
 			} else if (STR_STARTS_WITH(key_cmp, "TEMP") && read_val > cfg->max_temp) {
 				fprintf(stderr, "warning: \"%s\" set greater than max temp (%d C), "
-				        "using default value\n", key, cfg->max_temp);
+					"using default value\n", key, cfg->max_temp);
 				continue;
 			}
 
@@ -145,6 +144,7 @@ int parse_config(struct config *cfg)
 			} else if (STR_STARTS_WITH(key, "DEC_MAX_LVL")) {
 				cfg->dec_max_lvl = read_val;
 			}
+		}
 	}
 	return 0;
 }
