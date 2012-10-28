@@ -133,14 +133,7 @@ int main(int argc, char *argv[])
                         cfg.max_temp = (unsigned short)get_max_temp();
                         set_defaults(&cfg);
                         parse_config(&cfg);
-
                         new_temp = get_temp();
-                        if (new_temp == 0 || cfg.max_temp == 0) {
-                                fprintf(stderr, "error: cannot properly read temperature! "
-                                                "fan set to auto, exiting.\n");
-                                system("echo level auto > /proc/acpi/ibm/fan");
-                                return 1;
-                        }
 
                         /*
                          * initial call because the first call
