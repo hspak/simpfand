@@ -120,6 +120,10 @@ int parse_config(struct config *cfg)
                                 fprintf(stderr, "warning: \"%s\" set less than lowest temp (0), "
                                         "using default value\n", key);
                                 continue;
+                        } else if (STR_STARTS_WITH(key, "POLLING") && read_val <= 0) {
+                                fprintf(stderr, "warning: \"%s\" set less or equal to than zero, "
+                                        "using default value\n", key);
+                                continue;
                         }
 
                         if (STR_STARTS_WITH(key, "POLLING")) {
@@ -136,8 +140,6 @@ int parse_config(struct config *cfg)
                                 cfg->dec_high_temp = read_val;
                         } else if (STR_STARTS_WITH(key, "DEC_MAX_TEMP")) {
                                 cfg->dec_max_temp = read_val;
-                        } else if (STR_STARTS_WITH(key, "DEC_THRESH")) {
-                                cfg->dec_thres = read_val;
                         } else if (STR_STARTS_WITH(key, "BASE_LVL")) {
                                 cfg->base_lvl = read_val;
                         } else if (STR_STARTS_WITH(key, "INC_LOW_LVL")) {
@@ -177,6 +179,5 @@ void set_defaults(struct config *cfg)
         cfg->dec_max_temp  = DEC_MAX_TEMP;
 
         cfg->poll_int      = POLL_INTERVAL;
-        cfg->dec_thres     = DEC_THRESH;
         cfg->base_lvl      = BASE_LEVEL;
 }

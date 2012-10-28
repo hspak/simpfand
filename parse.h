@@ -47,7 +47,6 @@ struct config {
 
 	unsigned short base_lvl;
 	unsigned short poll_int;
-	unsigned short dec_thres;
 	unsigned short max_temp;
  };
 

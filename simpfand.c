@@ -59,7 +59,7 @@ int get_level(char* cmd, unsigned short old_temp, unsigned short new_temp,
         if (temp_diff == 0)
                 return 0;
 
-        if (temp_diff <= cfg->dec_thres)
+        if (temp_diff <= 0)
                 if (new_temp > cfg->dec_max_temp)
                         sprintf(cmd, "echo level %d > /proc/acpi/ibm/fan", cfg->dec_max_lvl);
                 else if (new_temp > cfg->dec_high_temp)
