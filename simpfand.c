@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
                 } else if (action == OPT_VERSION) {
                         print_version();
                 } else if (action == OPT_STOP) {
-                        system("echo level auto > /proc/acpi/ibm/fan");
+                        die("stopping simpfand");
                 } else if (action == OPT_START) {
                         cfg.max_temp = (unsigned short)get_max_temp();
                         set_defaults(&cfg);
