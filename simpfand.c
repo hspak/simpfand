@@ -9,11 +9,11 @@
 #define SET_TEMP 0
 #define MAX_TEMP 1
 
-void die(char *msg)
+void die(char *msg, int exit_code)
 {
         fprintf(stderr, "%s\nfan level set to auto, exiting", msg);
         system("echo level auto > /proc/acpi/ibm/fan");
-        exit(EXIT_FAILURE);
+        exit(exit_code);
 }
 
 void print_version(void)
@@ -45,7 +45,7 @@ unsigned short get_temp(int type)
         else
                 fp = fopen("/sys/devices/platform/coretemp.0/temp1_input", "r");
 
-        if (!fp) die("error: could not read temperature input");
+        if (!fp) die("error: could not read temperature input", EXIT_FAILURE);
         fscanf(fp, "%u", &read_temp);
         fclose(fp);
 
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
         int action;
 
         if (!module_enabled("/proc/acpi/ibm/fan", "r") || !arg_count(argc))
-                return 1;
+                return EXIT_FAILURE;
 
         if ((action = read_command(argc, argv)) != 0) {
                 if (action == OPT_HELP) {
@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
                 } else if (action == OPT_VERSION) {
                         print_version();
                 } else if (action == OPT_STOP) {
-                        die("stopping simpfand");
+                        die("stopping simpfand", EXIT_SUCCESS);
                 } else if (action == OPT_START) {
                         cfg.max_temp = (unsigned short)get_temp(MAX_TEMP);
                         set_defaults(&cfg);
@@ -118,5 +118,5 @@ int main(int argc, char *argv[])
                          }
                 }
         }
-        return 0;
+        return EXIT_SUCCESS;
 }
