@@ -14,11 +14,11 @@ strip: simpfand
 
 install: simpfand
 	install -D -m755 simpfand $(DESTDIR)$(PREFIX)/bin/simpfand
-	install -D -m644 simpfand.conf $(DESTDIR)/usr/share/doc/simpfand/simpfand.conf
+	install -D -m644 simpfand.conf $(DESTDIR)/usr/share/doc/simpfand/simpfand
 
 uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/bin/simpfand
-	rm -f $(DESTDIR)$(PREFIX)/usr/share/doc/simpfand/simpfand.conf
+	rm -f $(DESTDIR)$(PREFIX)/share/doc/simpfand/simpfand
 
 clean:
 	rm -f *.o simpfand
