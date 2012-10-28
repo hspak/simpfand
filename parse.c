@@ -43,14 +43,11 @@ int config_path_exists(char *path, int pathlen)
         if (stat("/etc/conf.d", &st) == 0) {
                 snprintf(path, pathlen, "%s/simpfand", cfg_path);
                 return 1;
-        } else {
-                fprintf(stderr, "simpfand: could not find /etc/conf.d\n");
         }
-
         return 0;
 }
 
-int parse_config(struct config *cfg)
+void parse_config(struct config *cfg)
 {
         char line[BUFF_MAX];
         char conf_path[PATH_MAX];
@@ -59,14 +56,14 @@ int parse_config(struct config *cfg)
         if (!config_path_exists(conf_path, sizeof(conf_path))) {
                 fprintf(stderr, "warning: could not find /etc/conf.d, "
                                 "using defaults\n");
-                return 0;
+                return;
         }
 
         fp = fopen(conf_path, "r");
         if (!fp) {
                 fprintf(stderr, "warning: no config file found "
                                 "using defaults\n");
-                return 0;
+                return;
         }
 
         while (fgets(line, PATH_MAX, fp)) {
@@ -157,7 +154,6 @@ int parse_config(struct config *cfg)
                         }
                 }
         }
-        return 0;
 }
 
 void set_defaults(struct config *cfg)
