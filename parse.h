@@ -54,5 +54,6 @@ struct config {
 size_t strtrim(char *str);
 int parse_config(struct config *cfg);
 int config_path_exists(char *path, int pathlen);
+void set_defaults();
 
 #endif

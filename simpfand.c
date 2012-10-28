@@ -5,7 +5,9 @@
 #include "parse.h"
 #include "options.h"
 
-#define CMD_MAX 35
+#define CMD_MAX 36
+#define SET_TEMP 0
+#define MAX_TEMP 1
 
 void die(char *msg)
 {
@@ -14,32 +16,40 @@ void die(char *msg)
         exit(EXIT_FAILURE);
 }
 
-unsigned short get_temp()
+void print_version(void)
 {
-        FILE *fp;
-        unsigned short temp;
-
-        fp=fopen("/sys/devices/platform/coretemp.0/temp1_input", "r");
-        if (!fp) die("error: could not read temperature input");
-        fscanf(fp, "%hu", &temp);
-        fclose(fp);
-
-        temp = (unsigned short)(temp / 1000.);
-        return temp;
+        printf("simpfand: %s\n", SIMPFAND_VERSION);
 }
 
-unsigned short get_max_temp()
+void print_help(void)
+{
+        print_version();
+        printf("Usage: simpfand <action>\n\n"
+
+               " Actions:\n"
+               "  -v, --version         display version\n"
+               "  -h, --help            display help\n"
+               "  -s, --start           starts daemon\n"
+               "  -t, --stop            stops daemon\n\n"
+
+               " NOTE: running --start and --stop manually is not recommended!\n");
+}
+
+unsigned short get_temp(int type)
 {
         FILE *fp;
-        unsigned int max_temp;
+        unsigned int read_temp;
 
-        fp = fopen("/sys/devices/platform/coretemp.0/temp1_max", "r");
+        if (type == MAX_TEMP)
+                fp = fopen("/sys/devices/platform/coretemp.0/temp1_max", "r");
+        else
+                fp = fopen("/sys/devices/platform/coretemp.0/temp1_input", "r");
+
         if (!fp) die("error: could not read temperature input");
-        fscanf(fp, "%u", &max_temp);
+        fscanf(fp, "%u", &read_temp);
         fclose(fp);
 
-        max_temp = (unsigned int)(max_temp / 1000.);
-        return max_temp;
+        return (unsigned short)(read_temp / 1000.);
 }
 
 int get_level(char* cmd, unsigned short old_temp, unsigned short new_temp,
@@ -70,48 +80,6 @@ int get_level(char* cmd, unsigned short old_temp, unsigned short new_temp,
         return 1;
 }
 
-void set_defaults(struct config *cfg)
-{
-        cfg->inc_low_temp  = INC_LOW_TEMP;
-        cfg->inc_high_temp = INC_HIGH_TEMP;
-        cfg->inc_max_temp  = INC_MAX_TEMP;
-
-        cfg->inc_low_lvl   = INC_LOW_LEVEL;
-        cfg->inc_high_lvl  = INC_HIGH_LEVEL;
-        cfg->inc_max_lvl   = INC_MAX_LEVEL;
-
-        cfg->dec_low_lvl   = DEC_LOW_LEVEL;
-        cfg->dec_high_lvl  = DEC_HIGH_LEVEL;
-        cfg->dec_max_lvl   = DEC_MAX_LEVEL;
-
-        cfg->dec_low_temp  = DEC_LOW_TEMP;
-        cfg->dec_high_temp = DEC_HIGH_TEMP;
-        cfg->dec_max_temp  = DEC_MAX_TEMP;
-
-        cfg->poll_int      = POLL_INTERVAL;
-        cfg->dec_thres     = DEC_THRESH;
-        cfg->base_lvl      = BASE_LEVEL;
-}
-
-void print_version(void)
-{
-        printf("simpfand: %s\n", SIMPFAND_VERSION);
-}
-
-void print_help(void)
-{
-        print_version();
-        printf("Usage: simpfand <action>\n\n"
-
-               " Actions:\n"
-               "  -v, --version         display version\n"
-               "  -h, --help            display help\n"
-               "  -s, --start           starts daemon\n"
-               "  -t, --stop            stops daemon\n\n"
-
-               " NOTE: running --start and --stop manually is not recommended!\n");
-}
-
 int main(int argc, char *argv[])
 {
         unsigned short old_temp, new_temp;
@@ -130,10 +98,10 @@ int main(int argc, char *argv[])
                 } else if (action == OPT_STOP) {
                         die("stopping simpfand");
                 } else if (action == OPT_START) {
-                        cfg.max_temp = (unsigned short)get_max_temp();
+                        cfg.max_temp = (unsigned short)get_temp(MAX_TEMP);
                         set_defaults(&cfg);
                         parse_config(&cfg);
-                        new_temp = get_temp();
+                        new_temp = get_temp(SET_TEMP);
 
                         /*
                          * initial call because the first call
@@ -144,7 +112,7 @@ int main(int argc, char *argv[])
 
                         while (1) {
                                 old_temp = new_temp;
-                                new_temp = get_temp();
+                                new_temp = get_temp(SET_TEMP);
                                 if (get_level(cmd, old_temp, new_temp, &cfg)) system(cmd);
                                 sleep(cfg.poll_int);
                          }
