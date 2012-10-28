@@ -107,9 +107,18 @@ int parse_config(struct config *cfg)
                                 fprintf(stderr, "warning: \"%s\" set greater than max level (7), "
                                         "using default value\n", key);
                                 continue;
+                        } else if (STR_STARTS_WITH(key_cmp, "_LVL") && read_val <= 0) {
+                                /* I refuse to let anyone turn off their fan */
+                                fprintf(stderr, "warning: \"%s\" set less or equal to than zero, "
+                                        "using default value\n", key);
+                                continue;
                         } else if (STR_STARTS_WITH(key_cmp, "TEMP") && read_val > cfg->max_temp) {
-                                fprintf(stderr, "warning: \"%s\" set greater than max temp (%d C), "
+                                fprintf(stderr, "warning: \"%s\" set greater than max temp (%d), "
                                         "using default value\n", key, cfg->max_temp);
+                                continue;
+                        } else if (STR_STARTS_WITH(key_cmp, "TEMP") && read_val <= 0) {
+                                fprintf(stderr, "warning: \"%s\" set less than lowest temp (0), "
+                                        "using default value\n", key);
                                 continue;
                         }
 
