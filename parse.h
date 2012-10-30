@@ -27,25 +27,25 @@
 #define STR_STARTS_WITH(x,y)  (strncmp((x),(y), strlen(y)) == 0)
 
 struct config {
-  unsigned short inc_low_temp;
-  unsigned short inc_high_temp;
-  unsigned short inc_max_temp;
+        unsigned short inc_low_temp;
+        unsigned short inc_high_temp;
+        unsigned short inc_max_temp;
 
-  unsigned short inc_low_lvl;
-  unsigned short inc_high_lvl;
-  unsigned short inc_max_lvl;
+        unsigned short inc_low_lvl;
+        unsigned short inc_high_lvl;
+        unsigned short inc_max_lvl;
 
-  unsigned short dec_low_temp;
-  unsigned short dec_high_temp;
-  unsigned short dec_max_temp;
+        unsigned short dec_low_temp;
+        unsigned short dec_high_temp;
+        unsigned short dec_max_temp;
 
-  unsigned short dec_low_lvl;
-  unsigned short dec_high_lvl;
-  unsigned short dec_max_lvl;
+        unsigned short dec_low_lvl;
+        unsigned short dec_high_lvl;
+        unsigned short dec_max_lvl;
 
-  unsigned short base_lvl;
-  unsigned short poll_int;
-  unsigned short max_temp;
+        unsigned short base_lvl;
+        unsigned short poll_int;
+        unsigned short max_temp;
  };
 
 size_t strtrim(char *str);
