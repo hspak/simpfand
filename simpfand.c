@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
                         print_help();
                 } else if (action == OPT_VERSION) {
                         print_version();
-                } else if (action == OPT_STOP) {       
+                } else if (action == OPT_STOP) {
                         die("stopping simpfand", EXIT_SUCCESS);
                 } else if (action == OPT_START) {
                         cfg.max_temp = get_temp(MAX_TEMP);
