@@ -36,11 +36,10 @@ size_t strtrim(char *str)
 
 int config_path_exists(char *path, int pathlen)
 {
-        char *cfg_path;
+        char *cfg_path = "/etc/conf.d";
         struct stat st;
 
-        cfg_path = "/etc/conf.d";
-        if (stat("/etc/conf.d", &st) == 0) {
+        if (stat(cfg_path, &st) == 0) {
                 snprintf(path, pathlen, "%s/simpfand", cfg_path);
                 return 1;
         }
@@ -98,6 +97,7 @@ void parse_config(struct config *cfg)
                 if (errno != 0 || cpy == val || *cpy != 0) {
                         fprintf(stderr, "simpfand: invalid entry in config for %s: \"%s\"", key, cpy);
                 } else {
+                        /* just look at the last 4 chars */
                         key_cmp = &key[key_len-4];
 
                         if (STR_STARTS_WITH(key_cmp, "_LVL") && read_val > 7) {
