@@ -14,7 +14,7 @@
 
 void die(char *msg, int exit_code)
 {
-        fprintf(stderr, "%s\nfan level set to auto, exiting", msg);
+        fprintf(stderr, "%s\nfan level set to auto, exiting\n", msg);
         system("echo level auto > /proc/acpi/ibm/fan");
         exit(exit_code);
 }
@@ -60,16 +60,7 @@ void get_level(char *level, unsigned short old_temp, unsigned short new_temp,
 {
         unsigned short temp_diff = new_temp - old_temp;
 
-        if (temp_diff <= 0)
-                if (new_temp > cfg->dec_max_temp)
-                        snprintf(level, LVL_LEN, "level %d", cfg->dec_max_lvl);
-                else if (new_temp > cfg->dec_high_temp)
-                        snprintf(level, LVL_LEN, "level %d", cfg->dec_high_lvl);
-                else if (new_temp > cfg->dec_low_temp)
-                        snprintf(level, LVL_LEN, "level %d", cfg->dec_low_lvl);
-                else
-                        snprintf(level, LVL_LEN, "level %d", cfg->base_lvl);
-        else
+        if (temp_diff > 0)
                 if (new_temp <= cfg->inc_low_temp)
                         snprintf(level, LVL_LEN, "level %d", cfg->base_lvl);
                 else if (new_temp <= cfg->inc_high_temp)
@@ -78,6 +69,15 @@ void get_level(char *level, unsigned short old_temp, unsigned short new_temp,
                         snprintf(level, LVL_LEN, "level %d", cfg->inc_high_lvl);
                 else
                         snprintf(level, LVL_LEN, "level %d", cfg->inc_max_lvl); 
+        else
+                if (new_temp > cfg->dec_max_temp)
+                        snprintf(level, LVL_LEN, "level %d", cfg->dec_max_lvl);
+                else if (new_temp > cfg->dec_high_temp)
+                        snprintf(level, LVL_LEN, "level %d", cfg->dec_high_lvl);
+                else if (new_temp > cfg->dec_low_temp)
+                        snprintf(level, LVL_LEN, "level %d", cfg->dec_low_lvl);
+                else
+                        snprintf(level, LVL_LEN, "level %d", cfg->base_lvl);
 }
 
 int main(int argc, char *argv[])
@@ -100,6 +100,7 @@ int main(int argc, char *argv[])
                 } else if (action == OPT_STOP) {
                         die("stopping simpfand", EXIT_SUCCESS);
                 } else if (action == OPT_START) {
+                        printf("wut");
                         cfg.max_temp = get_temp(MAX_TEMP);
                         set_defaults(&cfg);
                         parse_config(&cfg);
