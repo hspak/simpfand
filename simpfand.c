@@ -55,39 +55,70 @@ unsigned short get_temp(int type)
         return (unsigned short)(read_temp / 1000.);
 }
 
-void get_level(char *level, unsigned short old_temp, unsigned short new_temp,
-               struct config *cfg)
+unsigned short get_level(char *level_cmd, unsigned short old_temp,
+                         unsigned short new_temp, struct config *cfg)
 {
         unsigned short temp_diff = new_temp - old_temp;
+        unsigned short level = cfg->base_lvl;
 
         if (temp_diff > 0)
                 if (new_temp <= cfg->inc_low_temp)
-                        snprintf(level, LVL_LEN, "level %d", cfg->base_lvl);
+                        level = cfg->base_lvl;
                 else if (new_temp <= cfg->inc_high_temp)
-                        snprintf(level, LVL_LEN, "level %d", cfg->inc_low_lvl);
+                        level = cfg->inc_low_lvl;
                 else if (new_temp <= cfg->inc_max_temp)
-                        snprintf(level, LVL_LEN, "level %d", cfg->inc_high_lvl);
+                        level = cfg->inc_high_lvl;
                 else
-                        snprintf(level, LVL_LEN, "level %d", cfg->inc_max_lvl); 
+                        level = cfg->inc_max_lvl;
         else
                 if (new_temp > cfg->dec_max_temp)
-                        snprintf(level, LVL_LEN, "level %d", cfg->dec_max_lvl);
+                        level = cfg->dec_max_lvl;
                 else if (new_temp > cfg->dec_high_temp)
-                        snprintf(level, LVL_LEN, "level %d", cfg->dec_high_lvl);
+                        level = cfg->dec_high_lvl;
                 else if (new_temp > cfg->dec_low_temp)
-                        snprintf(level, LVL_LEN, "level %d", cfg->dec_low_lvl);
+                        level = cfg->dec_low_lvl;
                 else
-                        snprintf(level, LVL_LEN, "level %d", cfg->base_lvl);
+                        level = cfg->base_lvl;
+
+        snprintf(level_cmd, LVL_LEN, "level %d", level);
+        return level;
+}
+
+void fan_control(const char *fan_path)
+{
+        unsigned short old_temp, new_temp;
+        unsigned short curr_lvl, prev_lvl;
+        struct config cfg;
+        char lvl[LVL_LEN];
+        int file;
+
+        cfg.max_temp = get_temp(MAX_TEMP);
+        set_defaults(&cfg);
+        parse_config(&cfg);
+        new_temp = get_temp(SET_TEMP);
+        prev_lvl = cfg.base_lvl;
+
+        while (1) {
+                old_temp = new_temp;
+                new_temp = get_temp(SET_TEMP);
+                curr_lvl = get_level(lvl, old_temp, new_temp, &cfg);
+
+                if (prev_lvl != curr_lvl) {
+                        if ((file = open(fan_path, O_WRONLY)) == -1)
+                                die("error: could not open fan file", EXIT_FAILURE);
+                        if ((write(file, lvl, strlen(lvl))) == -1)
+                                die("error: could not write to fan file", EXIT_FAILURE);
+
+                        close(file);
+                }
+                sleep(cfg.poll_int);
+         }
 }
 
 int main(int argc, char *argv[])
 {
-        unsigned short old_temp, new_temp;
         char *fan_path = "/proc/acpi/ibm/fan";
-        char level[LVL_LEN];
-        struct config cfg;
         int action;
-        int file;
 
         if (!module_enabled(fan_path, "r") || !arg_count(argc))
                 return EXIT_FAILURE;
@@ -100,24 +131,7 @@ int main(int argc, char *argv[])
                 } else if (action == OPT_STOP) {
                         die("stopping simpfand", EXIT_SUCCESS);
                 } else if (action == OPT_START) {
-                        cfg.max_temp = get_temp(MAX_TEMP);
-                        set_defaults(&cfg);
-                        parse_config(&cfg);
-                        new_temp = get_temp(SET_TEMP);
-
-                        while (1) {
-                                old_temp = new_temp;
-                                new_temp = get_temp(SET_TEMP);
-                                get_level(level, old_temp, new_temp, &cfg);
-
-                                if ((file = open(fan_path, O_WRONLY)) == -1)
-                                        die("could not open fan file", EXIT_FAILURE);
-                                if ((write(file, level, strlen(level))) == -1)
-                                        die("could not write to fan file", EXIT_FAILURE);
-
-                                close(file);
-                                sleep(cfg.poll_int);
-                         }
+                        fan_control(fan_path);
                 }
         }
         return EXIT_SUCCESS;

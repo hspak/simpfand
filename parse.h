@@ -6,6 +6,7 @@
 #define INC_MAX_TEMP    82
 
 #define BASE_LEVEL      1
+
 #define INC_LOW_LEVEL   2
 #define INC_HIGH_LEVEL  4
 #define INC_MAX_LEVEL   6
@@ -44,6 +45,7 @@ struct config {
         unsigned short dec_max_lvl;
 
         unsigned short base_lvl;
+
         unsigned short poll_int;
         unsigned short max_temp;
  };
