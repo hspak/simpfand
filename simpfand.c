@@ -14,8 +14,11 @@
 
 void die(char *msg, int exit_code)
 {
-        fprintf(stderr, "%s\nfan level set to auto, exiting\n", msg);
-        system("echo level auto > /proc/acpi/ibm/fan");
+        /* only display msg if fan really got set to auto */
+        if (system("echo level auto > /proc/acpi/ibm/fan") != 256)
+                fprintf(stderr, "%s\nfan level set to auto, exiting\n", msg);
+        else
+                fprintf(stderr, "warning: do not run manually\n");
         exit(exit_code);
 }
 
