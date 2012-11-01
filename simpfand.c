@@ -100,7 +100,6 @@ int main(int argc, char *argv[])
                 } else if (action == OPT_STOP) {
                         die("stopping simpfand", EXIT_SUCCESS);
                 } else if (action == OPT_START) {
-                        printf("wut");
                         cfg.max_temp = get_temp(MAX_TEMP);
                         set_defaults(&cfg);
                         parse_config(&cfg);
@@ -111,9 +110,9 @@ int main(int argc, char *argv[])
                                 new_temp = get_temp(SET_TEMP);
                                 get_level(level, old_temp, new_temp, &cfg);
 
-                                if((file = open(fan_path, O_WRONLY)) == -1)
+                                if ((file = open(fan_path, O_WRONLY)) == -1)
                                         die("could not open fan file", EXIT_FAILURE);
-                                if((write(file, level, strlen(level))) == -1)
+                                if ((write(file, level, strlen(level))) == -1)
                                         die("could not write to fan file", EXIT_FAILURE);
 
                                 close(file);
