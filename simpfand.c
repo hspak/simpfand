@@ -99,11 +99,13 @@ void fan_control(const char *fan_path)
         set_defaults(&cfg);
         parse_config(&cfg);
         new_temp = get_temp(SET_TEMP);
-        prev_lvl = cfg.base_lvl;
+        curr_lvl = cfg.base_lvl;
 
         while (1) {
                 old_temp = new_temp;
                 new_temp = get_temp(SET_TEMP);
+
+                prev_lvl = curr_lvl;
                 curr_lvl = get_level(lvl, old_temp, new_temp, &cfg);
 
                 if (prev_lvl != curr_lvl) {
