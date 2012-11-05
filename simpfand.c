@@ -83,6 +83,7 @@ unsigned short get_level(char *level_cmd, unsigned short old_temp,
                 else
                         level = cfg->base_lvl;
 
+        snprintf(level_cmd, LVL_LEN, "level %d", level);
         return level;
 }
 
