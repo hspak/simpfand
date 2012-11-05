@@ -61,7 +61,7 @@ unsigned short get_temp(int type)
 unsigned short get_level(char *level_cmd, unsigned short old_temp,
                          unsigned short new_temp, struct config *cfg)
 {
-        unsigned short temp_diff = new_temp - old_temp;
+        short temp_diff = new_temp - old_temp;
         unsigned short level = cfg->base_lvl;
 
         if (temp_diff > 0)
@@ -83,7 +83,6 @@ unsigned short get_level(char *level_cmd, unsigned short old_temp,
                 else
                         level = cfg->base_lvl;
 
-        snprintf(level_cmd, LVL_LEN, "level %d", level);
         return level;
 }
 
@@ -134,7 +133,7 @@ int main(int argc, char *argv[])
                 } else if (action == OPT_VERSION) {
                         print_version();
                 } else if (action == OPT_STOP) {
-                        die("stopping simpfand", EXIT_SUCCESS);
+                        die("quitting simpfand", EXIT_SUCCESS);
                 } else if (action == OPT_START) {
                         fan_control(fan_path);
                 }
