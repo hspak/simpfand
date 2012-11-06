@@ -103,15 +103,13 @@ void fan_control(const char *fan_path)
         curr_lvl = 0; /* need to initialize it to something different */
 
         while (1) {
-                /* hopefully this prevents program from dying after suspending */
-                if (errno == EINTR)
-                        continue;
-
                 old_temp = new_temp;
                 new_temp = get_temp(SET_TEMP);
 
                 prev_lvl = curr_lvl;
                 curr_lvl = get_level(lvl, old_temp, new_temp, &cfg);
+
+                printf("%s\n", lvl);
 
                 if (prev_lvl != curr_lvl) {
                         if ((file = open(fan_path, O_WRONLY)) == -1)
