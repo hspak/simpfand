@@ -5,6 +5,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <errno.h>
 #include "parse.h"
 #include "options.h"
 
