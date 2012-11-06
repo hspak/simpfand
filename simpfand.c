@@ -102,6 +102,10 @@ void fan_control(const char *fan_path)
         curr_lvl = 0; /* need to initialize it to something different */
 
         while (1) {
+                /* hopefully this prevents program from dying after suspending */
+                if (errno == EINTR)
+                        continue;
+
                 old_temp = new_temp;
                 new_temp = get_temp(SET_TEMP);
 
