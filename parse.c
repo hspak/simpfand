@@ -36,11 +36,11 @@ size_t strtrim(char *str)
 
 int config_path_exists(char *path, int pathlen)
 {
-        char *cfg_path = "/etc/conf.d";
+        char *cfg_path = "/etc/";
         struct stat st;
 
         if (stat(cfg_path, &st) == 0) {
-                snprintf(path, pathlen, "%s/simpfand", cfg_path);
+                snprintf(path, pathlen, "%s/simpfand.conf", cfg_path);
                 return 1;
         }
         return 0;
@@ -53,7 +53,7 @@ void parse_config(struct config *cfg)
         FILE *fp;
 
         if (!config_path_exists(conf_path, sizeof(conf_path))) {
-                fprintf(stderr, "warning: could not find /etc/conf.d, "
+                fprintf(stderr, "warning: could not find /etc/ "
                                 "using defaults\n");
                 return;
         }
