@@ -6,7 +6,7 @@ CFLAGS = -std=c99 -Wall -pedantic -O3
 
 SRC = simpfand.c parse.c options.c
 OBJ = $(SRC:.c=.o)
-	
+
 simpfand: $(OBJ)
 
 strip: simpfand
