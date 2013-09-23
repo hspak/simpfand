@@ -2,7 +2,7 @@ VERSION = $(shell git describe)
 
 CC = gcc
 CPPFLAGS = -DSIMPFAND_VERSION=\"$(VERSION)\"
-CFLAGS = -std=c99 -Wall -pedantic -O3
+CFLAGS = -std=c99 -Wall -pedantic -Os
 
 SRC = simpfand.c parse.c options.c
 OBJ = $(SRC:.c=.o)
