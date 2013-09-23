@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
         char *fan_path = "/proc/acpi/ibm/fan";
         int action;
 
-        if (!module_enabled(fan_path, "r") || !arg_count(argc))
+        if (!arg_count(argc))
                 return EXIT_FAILURE;
 
         if ((action = read_command(argc, argv)) != 0) {
@@ -137,7 +137,11 @@ int main(int argc, char *argv[])
                 } else if (action == OPT_STOP) {
                         die("quitting simpfand", EXIT_SUCCESS);
                 } else if (action == OPT_START) {
-                        fan_control(fan_path);
+
+                        if (module_enabled(fan_path, "r"))
+                                fan_control(fan_path);
+                        else
+                                return EXIT_FAILURE;
                 }
         }
         return EXIT_SUCCESS;
