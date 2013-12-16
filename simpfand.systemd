@@ -1,6 +1,6 @@
 [Unit]
 Description=Simple fan control daemon for ThinkPads.
-After=acpi.service
+After=remote-fs.target
 
 [Service]
 ExecStart=/usr/bin/simpfand --start
