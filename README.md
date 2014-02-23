@@ -4,7 +4,9 @@
 ## Prequesite
 The option "fan\_control=1" needs to be enabled for the module: thinkpad\_acpi
 
-	# echo options thinkpad\_acpi fan\_control=1 > /etc/modprobe.d/thinkpad_fan.conf
+Example:
+
+	# echo options thinkpad_acpi fan_control=1 > /etc/modprobe.d/thinkpad_fan.conf
 
 ## Install
 On Arch Linux: [AUR](https://aur.archlinux.org/packages.php?ID=63124)
