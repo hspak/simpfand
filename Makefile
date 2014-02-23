@@ -15,12 +15,10 @@ strip: simpfand
 install: simpfand
 	install -D -m755 simpfand $(DESTDIR)$(PREFIX)/bin/simpfand
 	install -D -m644 simpfand.conf $(DESTDIR)$(PREFIX)/share/doc/simpfand/simpfand.conf
-	install -D -m755 restart-simpfand.sh $(DESTDIR)$(PREFIX)/lib/systemd/system-sleep/restart-simpfand.sh
 
 uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/bin/simpfand
 	rm -f $(DESTDIR)$(PREFIX)/share/doc/simpfand/simpfand.conf
-	rm -f $(DESTDIR)$(PREFIX)/lib/systemd/system-sleep/restart-simpfand.sh
 
 clean:
 	rm -f *.o simpfand
