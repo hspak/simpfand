@@ -1,6 +1,6 @@
 [Unit]
 Description=Simple fan control daemon for ThinkPads.
-After=remote-fs.target
+After=systemd-modules-load.service
 
 [Service]
 ExecStart=/usr/bin/simpfand --start
