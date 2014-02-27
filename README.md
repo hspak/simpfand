@@ -24,3 +24,5 @@ service is provided. The Makefile as is will not install any systemd scripts.
 ## Author
 Hong Shick Pak  hongshick.pak@gmail.com
 
+## License
+MIT
