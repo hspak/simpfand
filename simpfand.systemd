@@ -1,5 +1,6 @@
 [Unit]
 Description=Simple fan control daemon for ThinkPads.
+Requires=systemd-modules-load.service
 After=systemd-modules-load.service
 
 [Service]
