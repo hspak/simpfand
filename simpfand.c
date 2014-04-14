@@ -52,6 +52,14 @@ unsigned short get_temp(int type)
         else
                 fp = fopen("/sys/devices/platform/coretemp.0/temp1_max", "r");
 
+        // my temperatures on my t420 are being read somewhere else now...
+        if (!fp) {
+                if (type == SET_TEMP)
+                        fp = fopen("/sys/devices/platform/coretemp.0/hwmon/hwmon1/temp1_input", "r");
+                else
+                        fp = fopen("/sys/devices/platform/coretemp.0/hwmon/hwmon1/temp1_max", "r");
+        }
+                
         if (!fp) die("error: could not read temperature input", EXIT_FAILURE);
         fscanf(fp, "%u", &read_temp);
         fclose(fp);
