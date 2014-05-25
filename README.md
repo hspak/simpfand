@@ -22,7 +22,7 @@ Simpfand is not a true daemon. It needs a manager like systemd. A systemd
 service is provided. The Makefile as is will not install any systemd scripts.
 
 ## Author
-Hong Shick Pak  hongshick.pak@gmail.com
+Hong Shick Pak <hong@hspak.com>
 
 ## License
 MIT
