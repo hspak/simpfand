@@ -36,7 +36,7 @@ int read_command(int argc, char *argv[])
 
 int module_enabled(char *fan_path, char *mode)
 {
-        int enabled = fopen("/proc/acpi/ibm/fan", "r") != NULL;
+        int enabled = fopen(fan_path, mode) != NULL;
         if (!enabled) 
                 fprintf(stderr, "thinkpad_acpi fan_control option is disabled! Exiting\n");
         return enabled;
