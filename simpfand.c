@@ -25,7 +25,9 @@ void die(char *msg, int exit_code)
 
 void print_version(void)
 {
+#ifdef SIMPFAND_VERSION
         printf("simpfand: %s\n", SIMPFAND_VERSION);
+#endif
 }
 
 void print_help(void)
@@ -59,7 +61,7 @@ unsigned short get_temp(int type)
                 else
                         fp = fopen("/sys/devices/platform/coretemp.0/hwmon/hwmon1/temp1_max", "r");
         }
-                
+
         if (!fp) die("error: could not read temperature input", EXIT_FAILURE);
         fscanf(fp, "%u", &read_temp);
         fclose(fp);

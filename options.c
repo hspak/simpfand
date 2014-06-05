@@ -15,7 +15,7 @@ int read_command(int argc, char *argv[])
                 {0, 0, 0, 0}
         };
 
-        while ((opt = getopt_long(argc, argv, "shvt", opts, &option_index)) != -1) 
+        while ((opt = getopt_long(argc, argv, "shvt", opts, &option_index)) != -1)
         {
                 switch (opt)
                 {
@@ -37,7 +37,7 @@ int read_command(int argc, char *argv[])
 int module_enabled(char *fan_path, char *mode)
 {
         int enabled = fopen(fan_path, mode) != NULL;
-        if (!enabled) 
+        if (!enabled)
                 fprintf(stderr, "thinkpad_acpi fan_control option is disabled! Exiting\n");
         return enabled;
 }
@@ -45,7 +45,7 @@ int module_enabled(char *fan_path, char *mode)
 int arg_count(int argc)
 {
         int enough = argc > 1;
-        if (!enough) 
+        if (!enough)
                 fprintf(stderr, "error: requires argument (-h for help)\n");
         return enough;
 }
