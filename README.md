@@ -9,7 +9,7 @@ Example:
 	# echo options thinkpad_acpi fan_control=1 > /etc/modprobe.d/thinkpad_fan.conf
 
 ## Install
-On Arch Linux: [AUR](https://aur.archlinux.org/packages.php?ID=63124)
+On Arch Linux: [AUR](https://aur.archlinux.org/packages/simpfand-git/)
 
 Also installs a systemd service file and a restart on resume script.
 
