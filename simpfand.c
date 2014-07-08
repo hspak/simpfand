@@ -5,7 +5,6 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <errno.h>
 #include "parse.h"
 #include "options.h"
 
@@ -19,7 +18,7 @@ void die(char *msg, int exit_code)
         if (system("echo level auto > /proc/acpi/ibm/fan") != 256)
                 fprintf(stderr, "%s\nfan level set to auto, exiting\n", msg);
         else
-                fprintf(stderr, "warning: do not run manually\n");
+                fprintf(stderr, "%s\nwarning: could not verify fan state\n");
         exit(exit_code);
 }
 
@@ -38,8 +37,8 @@ void print_help(void)
                " Actions:\n"
                "  -v, --version         display version\n"
                "  -h, --help            display help\n"
-               "  -s, --start           starts daemon\n"
-               "  -t, --stop            stops daemon\n\n"
+               "  -s, --start           starts simpfand\n"
+               "  -t, --stop            stops simpfand\n\n"
 
                " NOTE: running --start and --stop manually is not recommended!\n");
 }
@@ -118,7 +117,9 @@ void fan_control(const char *fan_path)
 
                 prev_lvl = curr_lvl;
                 curr_lvl = get_level(lvl, old_temp, new_temp, &cfg);
-
+#ifdef DEBUG
+                printf("level: %d -> %d\n", prev_lvl, curr_lvl);
+#endif
                 if (prev_lvl != curr_lvl) {
                         if ((file = open(fan_path, O_WRONLY)) == -1)
                                 die("error: could not open fan file", EXIT_FAILURE);
@@ -153,6 +154,8 @@ int main(int argc, char *argv[])
                         else
                                 return EXIT_FAILURE;
                 }
+        } else {
+                printf("unknown option: %s\n", argv[1]);
         }
         return EXIT_SUCCESS;
 
