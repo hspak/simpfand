@@ -18,7 +18,7 @@ void die(char *msg, int exit_code)
         if (system("echo level auto > /proc/acpi/ibm/fan") != 256)
                 fprintf(stderr, "%s\nfan level set to auto, exiting\n", msg);
         else
-                fprintf(stderr, "%s\nwarning: could not verify fan state\n");
+                fprintf(stderr, "%s\nwarning: could not verify fan state\n", msg);
         exit(exit_code);
 }
 
