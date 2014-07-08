@@ -149,11 +149,12 @@ int main(int argc, char *argv[])
                         die("quitting simpfand", EXIT_SUCCESS);
                 } else if (action == OPT_START) {
 
-                        if (module_enabled(fan_path, "r"))
+                        if (module_enabled(fan_path, "r")) {
                                 printf("fan control started\n");
                                 fan_control(fan_path);
-                        else
+                        } else {
                                 return EXIT_FAILURE;
+                        }
                 }
         } else {
                 printf("unknown option: %s\n", argv[1]);
