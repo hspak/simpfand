@@ -150,6 +150,7 @@ int main(int argc, char *argv[])
                 } else if (action == OPT_START) {
 
                         if (module_enabled(fan_path, "r"))
+                                printf("fan control started\n");
                                 fan_control(fan_path);
                         else
                                 return EXIT_FAILURE;
