@@ -118,7 +118,7 @@ void fan_control(const char *fan_path)
                 prev_lvl = curr_lvl;
                 curr_lvl = get_level(lvl, old_temp, new_temp, &cfg);
 #ifdef DEBUG
-                printf("level: %d -> %d\n", prev_lvl, curr_lvl);
+                fprintf(stdout, "level: %d -> %d\n", prev_lvl, curr_lvl);
 #endif
                 if (prev_lvl != curr_lvl) {
                         if ((file = open(fan_path, O_WRONLY)) == -1)
@@ -150,14 +150,14 @@ int main(int argc, char *argv[])
                 } else if (action == OPT_START) {
 
                         if (module_enabled(fan_path, "r")) {
-                                printf("fan control started\n");
+                                fprintf(stdout, "fan control started\n");
                                 fan_control(fan_path);
                         } else {
                                 return EXIT_FAILURE;
                         }
                 }
         } else {
-                printf("unknown option: %s\n", argv[1]);
+                fprintf(stderr, "unknown option: %s\n", argv[1]);
         }
         return EXIT_SUCCESS;
 
