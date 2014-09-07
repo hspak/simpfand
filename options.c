@@ -11,7 +11,6 @@ int read_command(int argc, char *argv[])
                 {"help", no_argument,       0, 'h'},
                 {"version", no_argument,    0, 'v'},
                 {"start", no_argument,      0, 's'},
-                {"stop", no_argument,       0, 't'},
                 {0, 0, 0, 0}
         };
 
@@ -25,8 +24,6 @@ int read_command(int argc, char *argv[])
                                 return OPT_VERSION;
                         case 's':
                                 return OPT_START;
-                        case 't':
-                                return OPT_STOP;
                         default:
                                 return -1;
                 }
