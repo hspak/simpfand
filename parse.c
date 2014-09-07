@@ -104,9 +104,9 @@ void parse_config(struct config *cfg)
                                 fprintf(stderr, "warning: \"%s\" set greater than max level (7), "
                                         "using default value\n", key);
                                 continue;
-                        } else if (STR_STARTS_WITH(key_cmp, "_LVL") && read_val <= 0) {
-                                /* I refuse to let anyone turn off their fan */
-                                fprintf(stderr, "warning: \"%s\" set less or equal to than zero, "
+                        } else if (STR_STARTS_WITH(key_cmp, "_LVL") && read_val < 0) {
+                                /* fan levels of 0 might be ok now with more modern hardware */
+                                fprintf(stderr, "warning: \"%s\" set less than zero, "
                                         "using default value\n", key);
                                 continue;
                         } else if (STR_STARTS_WITH(key_cmp, "TEMP") && read_val > cfg->max_temp) {
@@ -121,6 +121,11 @@ void parse_config(struct config *cfg)
                                 fprintf(stderr, "warning: \"%s\" set less or equal to than zero, "
                                         "using default value\n", key);
                                 continue;
+
+                        /* warn users who want to use fan level of 0 */
+                        } else if (STR_STARTS_WITH(key_cmp, "_LVL") && read_val == 0) {
+                                fprintf(stderr, "warning: \"%s\" set to zero, suggest using a lower "
+                                        "polling interval than default\n", key);
                         }
 
                         if (STR_STARTS_WITH(key, "POLLING")) {
