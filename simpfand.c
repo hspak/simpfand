@@ -131,7 +131,7 @@ void fan_control(const char *fan_path)
 
                 prev_lvl = curr_lvl;
                 curr_lvl = get_level(lvl, old_temp, new_temp, prev_lvl, &cfg);
-                fprintf(stdout, "level: %d -> %d\n", prev_lvl, curr_lvl);
+                fprintf(stderr, "level: %d -> %d\n", prev_lvl, curr_lvl);
 
                 if (prev_lvl != curr_lvl || prev_lvl == 100) {
                         if ((file = open(fan_path, O_WRONLY)) == -1)
