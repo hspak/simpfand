@@ -122,9 +122,10 @@ void fan_control(const char *fan_path)
         sig_int_handler.sa_handler = signal_handler;
         sigemptyset(&sig_int_handler.sa_mask);
         sig_int_handler.sa_flags = 0;
+        sigaction(SIGINT, &sig_int_handler, NULL);
+        sigaction(SIGTERM, &sig_int_handler, NULL);
 
         while (1) {
-                sigaction(SIGINT, &sig_int_handler, NULL);
 
                 old_temp = new_temp;
                 new_temp = get_temp(SET_TEMP);
