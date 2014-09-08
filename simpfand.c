@@ -93,11 +93,11 @@ unsigned short get_level(char *level_cmd, unsigned short old_temp,
         else
                 level = cfg->base_lvl;
 
-        if (prev_lvl == level) {
+        if (level == prev_lvl)
                 return level;
-        }
 
-        if (temp_diff >= 0 || prev_lvl == INIT_GARBAGE) {
+        // if temp_diff == 0, we would have returned above
+        if (temp_diff > 0 || prev_lvl == INIT_GARBAGE) {
                 if (new_temp <= cfg->inc_low_temp)
                         level = cfg->base_lvl;
                 else if (new_temp <= cfg->inc_high_temp)
