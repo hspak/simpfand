@@ -12,6 +12,7 @@
 #define SET_TEMP 0
 #define MAX_TEMP 1
 #define LVL_LEN 8
+#define INIT_GARBAGE 100
 
 void die(char *msg, int exit_code)
 {
@@ -23,9 +24,11 @@ void die(char *msg, int exit_code)
         exit(exit_code);
 }
 
-void signal_handler()
+void signal_handler(int sig)
 {
-        die("caught SIGINT", 1);
+        char msg[16];
+        snprintf(msg, sizeof(msg), "caught signal %d\n", sig);
+        die(msg, 0);
 }
 
 void print_version(void)
@@ -80,7 +83,21 @@ unsigned short get_level(char *level_cmd, unsigned short old_temp,
         short temp_diff = new_temp - old_temp;
         unsigned short level = prev_lvl;
 
-        if (temp_diff > 0 || prev_lvl == 100) {
+        // if temp is decreasing, stay decreasing until next thresh
+        if (new_temp > cfg->dec_max_temp)
+                level = cfg->dec_max_lvl;
+        else if (new_temp > cfg->dec_high_temp)
+                level = cfg->dec_high_lvl;
+        else if (new_temp > cfg->dec_low_temp)
+                level = cfg->dec_low_lvl;
+        else
+                level = cfg->base_lvl;
+
+        if (prev_lvl == level) {
+                return level;
+        }
+
+        if (temp_diff >= 0 || prev_lvl == INIT_GARBAGE) {
                 if (new_temp <= cfg->inc_low_temp)
                         level = cfg->base_lvl;
                 else if (new_temp <= cfg->inc_high_temp)
@@ -89,17 +106,7 @@ unsigned short get_level(char *level_cmd, unsigned short old_temp,
                         level = cfg->inc_high_lvl;
                 else
                         level = cfg->inc_max_lvl;
-        } else if (temp_diff < 0) {
-                if (new_temp > cfg->dec_max_temp)
-                        level = cfg->dec_max_lvl;
-                else if (new_temp > cfg->dec_high_temp)
-                        level = cfg->dec_high_lvl;
-                else if (new_temp > cfg->dec_low_temp)
-                        level = cfg->dec_low_lvl;
-                else
-                        level = cfg->base_lvl;
         }
-
         snprintf(level_cmd, LVL_LEN, "level %d", level);
         return level;
 }
@@ -116,8 +123,9 @@ void fan_control(const char *fan_path)
         set_defaults(&cfg);
         parse_config(&cfg);
         new_temp = get_temp(SET_TEMP);
-        curr_lvl = 100; /* need to initialize it to something invalid to start it */
+        curr_lvl = INIT_GARBAGE; /* need to initialize it to something invalid to start it */
 
+        // catch signals
         struct sigaction sig_int_handler;
         sig_int_handler.sa_handler = signal_handler;
         sigemptyset(&sig_int_handler.sa_mask);
@@ -126,7 +134,6 @@ void fan_control(const char *fan_path)
         sigaction(SIGTERM, &sig_int_handler, NULL);
 
         while (1) {
-
                 old_temp = new_temp;
                 new_temp = get_temp(SET_TEMP);
 
@@ -134,7 +141,7 @@ void fan_control(const char *fan_path)
                 curr_lvl = get_level(lvl, old_temp, new_temp, prev_lvl, &cfg);
                 fprintf(stderr, "level: %d -> %d\n", prev_lvl, curr_lvl);
 
-                if (prev_lvl != curr_lvl || prev_lvl == 100) {
+                if (prev_lvl != curr_lvl || prev_lvl == INIT_GARBAGE) {
                         if ((file = open(fan_path, O_WRONLY)) == -1)
                                 die("error: could not open fan file", EXIT_FAILURE);
                         if ((write(file, lvl, strlen(lvl))) == -1)
@@ -142,8 +149,6 @@ void fan_control(const char *fan_path)
 
                         close(file);
                 }
-
-
                 sleep(cfg.poll_int);
          }
 }
