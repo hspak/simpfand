@@ -14,13 +14,18 @@
 #define LVL_LEN 8
 #define INIT_GARBAGE 100
 
+#define INC 0
+#define DEC 1
+
 void die(char *msg, int exit_code)
 {
         /* only display msg if fan really got set to auto */
-        if (system("echo level auto > /proc/acpi/ibm/fan") != 256)
+        if (system("echo level auto > /proc/acpi/ibm/fan") != 256) {
                 fprintf(stderr, "%s\nfan level set to auto, exiting\n", msg);
-        else
+        } else {
                 fprintf(stderr, "%s\nwarning: could not verify fan state\n", msg);
+                exit_code = EXIT_FAILURE;
+        }
         exit(exit_code);
 }
 
@@ -28,7 +33,7 @@ void signal_handler(int sig)
 {
         char msg[16];
         snprintf(msg, sizeof(msg), "caught signal %d\n", sig);
-        die(msg, 0);
+        die(msg, EXIT_SUCCESS);
 }
 
 void print_version(void)
@@ -48,7 +53,7 @@ void print_help(void)
                "  -h, --help            display help\n"
                "  -s, --start           starts simpfand\n"
 
-               " NOTE: running --start manually is not recommended!\n");
+               " NOTE: running --start manually is not recommended\n");
 }
 
 unsigned short get_temp(int type)
@@ -76,39 +81,52 @@ unsigned short get_temp(int type)
         return (unsigned short)(read_temp / 1000.);
 }
 
-unsigned short get_level(char *level_cmd, unsigned short old_temp,
-                         unsigned short new_temp, unsigned short prev_lvl,
-                         struct config *cfg)
+unsigned short get_level(char *level_cmd, unsigned short curr_temp, int *change,
+                         unsigned short prev_lvl, int dir, struct config *cfg)
 {
-        short temp_diff = new_temp - old_temp;
-        unsigned short level = prev_lvl;
+        unsigned level = INIT_GARBAGE;
 
-        // if temp is decreasing, stay decreasing until next thresh
-        if (new_temp > cfg->dec_max_temp)
-                level = cfg->dec_max_lvl;
-        else if (new_temp > cfg->dec_high_temp)
-                level = cfg->dec_high_lvl;
-        else if (new_temp > cfg->dec_low_temp)
-                level = cfg->dec_low_lvl;
-        else
-                level = cfg->base_lvl;
-
-        if (level == prev_lvl)
-                return level;
-
-        // if temp_diff == 0, we would have returned above
-        if (temp_diff > 0 || prev_lvl == INIT_GARBAGE) {
-                if (new_temp <= cfg->inc_low_temp)
+        if (dir == INC) {
+                if (curr_temp > cfg->dec_max_temp)
+                        level = cfg->dec_max_lvl;
+                else if (curr_temp > cfg->dec_high_temp)
+                        level = cfg->dec_high_lvl;
+                else if (curr_temp > cfg->dec_low_temp)
+                        level = cfg->dec_low_lvl;
+                else
                         level = cfg->base_lvl;
-                else if (new_temp <= cfg->inc_high_temp)
+        }
+
+        if (dir == DEC) {
+                if (curr_temp <= cfg->inc_low_temp)
+                        level = cfg->base_lvl;
+                else if (curr_temp <= cfg->inc_high_temp)
                         level = cfg->inc_low_lvl;
-                else if (new_temp <= cfg->inc_max_temp)
+                else if (curr_temp <= cfg->inc_max_temp)
                         level = cfg->inc_high_lvl;
                 else
                         level = cfg->inc_max_lvl;
         }
+
+        if (level == INIT_GARBAGE)
+                die("error: get_level logic broken", 1);
+        else if (level != prev_lvl)
+                *change = 1;
+
         snprintf(level_cmd, LVL_LEN, "level %d", level);
         return level;
+}
+
+void update_fan_level(const char *fan_path, char *lvl)
+{
+        int file;
+
+        if ((file = open(fan_path, O_WRONLY)) == -1)
+                die("error: could not open fan file", EXIT_FAILURE);
+        if ((write(file, lvl, strlen(lvl))) == -1)
+                die("error: could not write to fan file", EXIT_FAILURE);
+
+        close(file);
 }
 
 void fan_control(const char *fan_path)
@@ -117,11 +135,15 @@ void fan_control(const char *fan_path)
         unsigned short curr_lvl, prev_lvl;
         struct config cfg;
         char lvl[LVL_LEN];
-        int file;
+        int change = 0;
+        int diff;
+        int dir;
 
         cfg.max_temp = get_temp(MAX_TEMP);
         set_defaults(&cfg);
         parse_config(&cfg);
+
+        dir = INC;
         new_temp = get_temp(SET_TEMP);
         curr_lvl = INIT_GARBAGE; /* need to initialize it to something invalid to start it */
 
@@ -137,18 +159,24 @@ void fan_control(const char *fan_path)
                 old_temp = new_temp;
                 new_temp = get_temp(SET_TEMP);
 
-                prev_lvl = curr_lvl;
-                curr_lvl = get_level(lvl, old_temp, new_temp, prev_lvl, &cfg);
-                fprintf(stderr, "level: %d -> %d\n", prev_lvl, curr_lvl);
-
-                if (prev_lvl != curr_lvl || prev_lvl == INIT_GARBAGE) {
-                        if ((file = open(fan_path, O_WRONLY)) == -1)
-                                die("error: could not open fan file", EXIT_FAILURE);
-                        if ((write(file, lvl, strlen(lvl))) == -1)
-                                die("error: could not write to fan file", EXIT_FAILURE);
-
-                        close(file);
+                if (change) {
+                        change = 0;
+                        diff = new_temp - old_temp;
+                        if (diff > 0)
+                                dir = INC;
+                        else if (diff < 0)
+                                dir = DEC;
+                        // no change if == 0
                 }
+
+                prev_lvl = curr_lvl;
+                curr_lvl = get_level(lvl, new_temp, &change, prev_lvl, dir, &cfg);
+                printf("change %d and dir %d\n", change, dir);
+
+                if (prev_lvl != curr_lvl || prev_lvl == INIT_GARBAGE)
+                        update_fan_level(fan_path, lvl);
+
+                fprintf(stderr, "level: %d(%d) -> %d(%d)\n", prev_lvl, old_temp, curr_lvl, new_temp);
                 sleep(cfg.poll_int);
          }
 }
@@ -171,6 +199,7 @@ int main(int argc, char *argv[])
                                 fprintf(stderr, "fan control started\n");
                                 fan_control(fan_path);
                         } else {
+                                // error msg from module_enabled
                                 return EXIT_FAILURE;
                         }
                 }
