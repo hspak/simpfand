@@ -87,17 +87,6 @@ unsigned short get_level(char *level_cmd, unsigned short curr_temp, int *change,
         unsigned level = INIT_GARBAGE;
 
         if (dir == INC) {
-                if (curr_temp > cfg->dec_max_temp)
-                        level = cfg->dec_max_lvl;
-                else if (curr_temp > cfg->dec_high_temp)
-                        level = cfg->dec_high_lvl;
-                else if (curr_temp > cfg->dec_low_temp)
-                        level = cfg->dec_low_lvl;
-                else
-                        level = cfg->base_lvl;
-        }
-
-        if (dir == DEC) {
                 if (curr_temp <= cfg->inc_low_temp)
                         level = cfg->base_lvl;
                 else if (curr_temp <= cfg->inc_high_temp)
@@ -106,6 +95,17 @@ unsigned short get_level(char *level_cmd, unsigned short curr_temp, int *change,
                         level = cfg->inc_high_lvl;
                 else
                         level = cfg->inc_max_lvl;
+        }
+
+        if (dir == DEC) {
+                if (curr_temp > cfg->dec_max_temp)
+                        level = cfg->dec_max_lvl;
+                else if (curr_temp > cfg->dec_high_temp)
+                        level = cfg->dec_high_lvl;
+                else if (curr_temp > cfg->dec_low_temp)
+                        level = cfg->dec_low_lvl;
+                else
+                        level = cfg->base_lvl;
         }
 
         if (level == INIT_GARBAGE)
