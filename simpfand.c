@@ -81,11 +81,12 @@ unsigned short get_temp(int type)
         return (unsigned short)(read_temp / 1000.);
 }
 
-unsigned short get_level(char *level_cmd, unsigned short curr_temp, int *change,
-                         unsigned short prev_lvl, int dir, struct config *cfg)
+unsigned short get_level(unsigned short curr_temp, int dir, struct config *cfg)
 {
         unsigned level = INIT_GARBAGE;
 
+        // might want to consider changing this if chain into arrays...might be worth it
+        // 2 * 128*2 = 512 bytes to allow temp of 0-127 with should be plenty, x2 for dec/inc
         if (dir == INC) {
                 if (curr_temp <= cfg->inc_low_temp)
                         level = cfg->base_lvl;
@@ -107,20 +108,28 @@ unsigned short get_level(char *level_cmd, unsigned short curr_temp, int *change,
                 else
                         level = cfg->base_lvl;
         }
+        return level;
+}
+
+int detect_change(unsigned short curr_temp, unsigned short prev_lvl, int dir, struct config *cfg)
+{
+        unsigned level = get_level(curr_temp, dir, cfg);
+        int change = 0;
 
         if (level == INIT_GARBAGE)
                 die("error: get_level logic broken", 1);
         else if (level != prev_lvl)
-                *change = 1;
+                change = 1;
 
-        snprintf(level_cmd, LVL_LEN, "level %d", level);
-        return level;
+        return change;
 }
-
-void update_fan_level(const char *fan_path, char *lvl)
+ 
+void update_fan_level(const char *fan_path, unsigned int curr_lvl)
 {
         int file;
+        char lvl[LVL_LEN];
 
+        snprintf(lvl, LVL_LEN, "level %d", curr_lvl);
         if ((file = open(fan_path, O_WRONLY)) == -1)
                 die("error: could not open fan file", EXIT_FAILURE);
         if ((write(file, lvl, strlen(lvl))) == -1)
@@ -131,10 +140,9 @@ void update_fan_level(const char *fan_path, char *lvl)
 
 void fan_control(const char *fan_path)
 {
-        unsigned short old_temp, new_temp;
+        unsigned short prev_temp, curr_temp;
         unsigned short curr_lvl, prev_lvl;
         struct config cfg;
-        char lvl[LVL_LEN];
         int change = 0;
         int diff;
         int dir;
@@ -144,7 +152,7 @@ void fan_control(const char *fan_path)
         parse_config(&cfg);
 
         dir = INC;
-        new_temp = get_temp(SET_TEMP);
+        curr_temp = get_temp(SET_TEMP);
         curr_lvl = INIT_GARBAGE; /* need to initialize it to something invalid to start it */
 
         // catch signals
@@ -156,27 +164,23 @@ void fan_control(const char *fan_path)
         sigaction(SIGTERM, &sig_int_handler, NULL);
 
         while (1) {
-                old_temp = new_temp;
-                new_temp = get_temp(SET_TEMP);
+                prev_temp = curr_temp;
+                curr_temp = get_temp(SET_TEMP);
+                prev_lvl = curr_lvl;
 
-                if (change) {
-                        change = 0;
-                        diff = new_temp - old_temp;
+                change = detect_change(curr_temp, prev_lvl, dir, &cfg);
+                if (change || prev_lvl == INIT_GARBAGE) {
+                        diff = curr_temp - prev_temp;
                         if (diff > 0)
                                 dir = INC;
                         else if (diff < 0)
                                 dir = DEC;
-                        // no change if == 0
+
+                        change = 0;
+                        curr_lvl = get_level(curr_temp, dir, &cfg);
+                        update_fan_level(fan_path, curr_lvl);
                 }
-
-                prev_lvl = curr_lvl;
-                curr_lvl = get_level(lvl, new_temp, &change, prev_lvl, dir, &cfg);
-                printf("change %d and dir %d\n", change, dir);
-
-                if (prev_lvl != curr_lvl || prev_lvl == INIT_GARBAGE)
-                        update_fan_level(fan_path, lvl);
-
-                fprintf(stderr, "level: %d(%d) -> %d(%d)\n", prev_lvl, old_temp, curr_lvl, new_temp);
+                fprintf(stderr, "lvl: %d(%d) -> %d(%d)\n", prev_lvl, prev_temp, curr_lvl, curr_temp);
                 sleep(cfg.poll_int);
          }
 }
