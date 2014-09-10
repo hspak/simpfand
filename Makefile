@@ -9,9 +9,6 @@ OBJ = $(SRC:.c=.o)
 
 simpfand: $(OBJ)
 
-strip: simpfand
-	strip --strip-all simpfand
-
 install: simpfand
 	install -D -m755 simpfand $(DESTDIR)$(PREFIX)/bin/simpfand
 	install -D -m644 simpfand.conf $(DESTDIR)$(PREFIX)/share/doc/simpfand/simpfand.conf
