@@ -21,13 +21,14 @@ Otherwise:
 Simpfand is not a true daemon. It needs a manager like systemd. A systemd
 service is provided. The Makefile as is will not install any systemd scripts.
 
-__Note__: As of version 4.1+, fan levels of 0 are allowed. As of version 4.2,
-[temperature hysteresis](http://en.wikipedia.org/wiki/Hysteresis) is implemented
-thanks to [MarcusMoeller](https://github.com/MarcusMoeller). Without his testing
-and suggestions, this would not exist. The default config has been setup as
-such now:
+__Note__: As of version 4.2, [temperature
+hysteresis](http://en.wikipedia.org/wiki/Hysteresis) is implemented thanks to
+[MarcusMoeller](https://github.com/MarcusMoeller). Without his testing and
+suggestions, this would not exist. The default config has been setup as such
+now:
 
-    default diagram:
+    default settings (temps and fan levels):
+
              55 --> BASE  --> 65 --> INC_L --> 75 --> INC_H --> 85 --> INC_M
     BASE <-- 55 <-- DEC_L <-- 65 <-- DEC_H <-- 75 <-- DEC_M <--
     
