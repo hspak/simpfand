@@ -15,11 +15,14 @@ Also installs a systemd service file and a restart on resume script.
 
 Otherwise:
 
-	make install
+    # make install
 
 ## Usage
 Simpfand is not a true daemon. It needs a manager like systemd. A systemd
 service is provided. The Makefile as is will not install any systemd scripts.
+
+    # systemctl enable simpfand
+    # systemctl start simpfand
 
 __Note__: As of version 4.2, [temperature
 hysteresis](http://en.wikipedia.org/wiki/Hysteresis) is implemented thanks to
