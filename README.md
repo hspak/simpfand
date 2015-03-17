@@ -32,11 +32,20 @@ now:
 
     default settings (temps and fan levels):
 
-             55 --> BASE  --> 65 --> INC_L --> 75 --> INC_H --> 85 --> INC_M
+              0 --> BASE  --> 65 --> INC_L --> 75 --> INC_H --> 85 --> INC_M
     BASE <-- 55 <-- DEC_L <-- 65 <-- DEC_H <-- 75 <-- DEC_M <--
-    
+
+    Where:
+        INC_LOW_TEMP = 65
+        INC_HIGH_TEMP = 75
+        INC_MAX_TEMP = 85
+
+        DEC_LOW_TEMP = 55
+        DEC_HIGH_TEMP = 65
+        DEC_MAX_TEMP = 75
+
     translates into:
-    
+
           55 --> 1 --> 65 --> 2 --> 75 --> 4 --> 85 --> 6
     1 <-- 55 <-- 2 <-- 65 <-- 4 <-- 75 <-- 6 <--
 
