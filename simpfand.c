@@ -123,7 +123,7 @@ int detect_change(unsigned short curr_temp, unsigned short prev_lvl, int dir, st
 
         return change;
 }
- 
+
 void update_fan_level(const char *fan_path, unsigned int curr_lvl)
 {
         int file;
