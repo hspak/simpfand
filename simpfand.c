@@ -9,13 +9,14 @@
 #include "parse.h"
 #include "options.h"
 
-#define SET_TEMP 0
-#define MAX_TEMP 1
 #define LVL_LEN 8
 #define INIT_GARBAGE 100
 
 #define INC 0
 #define DEC 1
+
+static char* temp_path;
+static char* max_temp_path;
 
 void die(char *msg, int exit_code)
 {
@@ -56,30 +57,32 @@ void print_help(void)
                " NOTE: running --start manually is not recommended\n");
 }
 
-unsigned short get_temp(int type)
+unsigned short get_temp()
 {
         FILE *fp;
         unsigned int read_temp;
 
-        if (type == SET_TEMP)
-                fp = fopen("/sys/devices/platform/coretemp.0/temp1_input", "r");
-        else
-                fp = fopen("/sys/devices/platform/coretemp.0/temp1_max", "r");
-
-        // my temperatures on my t420 are being read somewhere else now...
-        if (!fp) {
-                if (type == SET_TEMP)
-                        fp = fopen("/sys/devices/platform/coretemp.0/hwmon/hwmon1/temp1_input", "r");
-                else
-                        fp = fopen("/sys/devices/platform/coretemp.0/hwmon/hwmon1/temp1_max", "r");
-        }
-
+        fp = fopen(temp_path, "r");
         if (!fp) die("error: could not read temperature input", EXIT_FAILURE);
         fscanf(fp, "%u", &read_temp);
         fclose(fp);
 
         return (unsigned short)(read_temp / 1000.);
 }
+
+unsigned short get_max_temp()
+{
+        FILE *fp;
+        unsigned int read_temp;
+
+        fp = fopen(max_temp_path, "r");
+        if (!fp) die("error: could not read temperature input", EXIT_FAILURE);
+        fscanf(fp, "%u", &read_temp);
+        fclose(fp);
+
+        return (unsigned short)(read_temp / 1000.);
+}
+
 
 unsigned short get_level(unsigned short curr_temp, int dir, struct config *cfg)
 {
@@ -147,12 +150,12 @@ void fan_control(const char *fan_path)
         int diff;
         int dir;
 
-        cfg.max_temp = get_temp(MAX_TEMP);
+        cfg.max_temp = get_max_temp();
         set_defaults(&cfg);
         parse_config(&cfg);
 
         dir = INC;
-        curr_temp = get_temp(SET_TEMP);
+        curr_temp = get_temp();
         curr_lvl = INIT_GARBAGE; /* need to initialize it to something invalid to start it */
 
         // catch signals
@@ -165,7 +168,7 @@ void fan_control(const char *fan_path)
 
         while (1) {
                 prev_temp = curr_temp;
-                curr_temp = get_temp(SET_TEMP);
+                curr_temp = get_temp();
                 prev_lvl = curr_lvl;
 
                 change = detect_change(curr_temp, prev_lvl, dir, &cfg);
@@ -185,6 +188,52 @@ void fan_control(const char *fan_path)
          }
 }
 
+void set_path()
+{
+        FILE *fp = NULL;
+        char* paths[] = {
+                "/sys/devices/platform/coretemp.0/temp1_input",
+                "/sys/devices/platform/coretemp.0/temp2_input",
+                "/sys/devices/platform/coretemp.0/temp3_input",
+                "/sys/devices/platform/coretemp.0/hwmon/hwmon1/temp1_input",
+                "/sys/devices/platform/coretemp.0/hwmon/hwmon1/temp2_input",
+                "/sys/devices/platform/coretemp.0/hwmon/hwmon1/temp3_input",
+        };
+        for(int i = 0; i < 6; i++) {
+                fp = fopen(paths[i], "r");
+                if (fp != NULL) {
+                        temp_path = paths[i];
+                        fprintf(stderr, "found temp path: %s\n", temp_path);
+                        fclose(fp);
+                        return;
+                }
+        }
+        die("error: could not find temp path\n", 1);
+}
+
+void set_max_path()
+{
+        FILE *fp = NULL;
+        char* paths[] = {
+                "/sys/devices/platform/coretemp.0/temp1_max",
+                "/sys/devices/platform/coretemp.0/temp2_max",
+                "/sys/devices/platform/coretemp.0/temp3_max",
+                "/sys/devices/platform/coretemp.0/hwmon/hwmon1/temp1_max",
+                "/sys/devices/platform/coretemp.0/hwmon/hwmon1/temp2_max",
+                "/sys/devices/platform/coretemp.0/hwmon/hwmon1/temp3_max",
+        };
+        for(int i = 0; i < 6; i++) {
+                fp = fopen(paths[i], "r");
+                if (fp != NULL) {
+                        max_temp_path = paths[i];
+                        fprintf(stderr, "found max temp path: %s\n", temp_path);
+                        fclose(fp);
+                        return;
+                }
+        }
+        die("error: could not find max temp path\n", 1);
+}
+
 int main(int argc, char *argv[])
 {
         char *fan_path = "/proc/acpi/ibm/fan";
@@ -201,6 +250,8 @@ int main(int argc, char *argv[])
                 } else if (action == OPT_START) {
                         if (module_enabled(fan_path, "r")) {
                                 fprintf(stderr, "fan control started\n");
+                                set_path();
+                                set_max_path();
                                 fan_control(fan_path);
                         } else {
                                 // error msg from module_enabled
