@@ -204,6 +204,9 @@ void set_path()
                 "/sys/devices/platform/coretemp.0/hwmon/hwmon3/temp1_input",
                 "/sys/devices/platform/coretemp.0/hwmon/hwmon3/temp2_input",
                 "/sys/devices/platform/coretemp.0/hwmon/hwmon3/temp3_input",
+                "/sys/devices/platform/coretemp.0/hwmon/hwmon4/temp1_input",
+                "/sys/devices/platform/coretemp.0/hwmon/hwmon4/temp2_input",
+                "/sys/devices/platform/coretemp.0/hwmon/hwmon4/temp3_input",
         };
         for(int i = 0; i < sizeof(paths); i++) {
                 fp = fopen(paths[i], "r");
@@ -233,6 +236,9 @@ void set_max_path()
                 "/sys/devices/platform/coretemp.0/hwmon/hwmon3/temp1_max",
                 "/sys/devices/platform/coretemp.0/hwmon/hwmon3/temp2_max",
                 "/sys/devices/platform/coretemp.0/hwmon/hwmon3/temp3_max",
+                "/sys/devices/platform/coretemp.0/hwmon/hwmon4/temp1_max",
+                "/sys/devices/platform/coretemp.0/hwmon/hwmon4/temp2_max",
+                "/sys/devices/platform/coretemp.0/hwmon/hwmon4/temp3_max",
         };
         for(int i = 0; i < sizeof(paths); i++) {
                 fp = fopen(paths[i], "r");
